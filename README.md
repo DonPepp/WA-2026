@@ -126,19 +126,19 @@
 ## Database Tables
 
 - Table `users` - Contains user credentails and user's roles.
-- - Colonne: `userId` (PK), `email`, `name`, `hash` (encrypted password), `salt`, `secret` (TOTP secret key), `is_admin`, `lastTotpStep`.
+   - Fields: `userId` (PK), `email`, `name`, `hash` (encrypted password), `salt`, `secret` (TOTP secret key), `is_admin`, `lastTotpStep`.
 
 - Table `seats` - Contains theater seats' informations.
-- - Colonne: `row_label` (PK), `seatNumber` (PK), `category` (normal/premium).
+   - Fields: `row_label` (PK), `seatNumber` (PK), `category` (normal/premium).
 
 - Table `reservations` - Contains created reservations.
-- - Colonne: `id` (PK), `userId` (FK).
+   - Fields: `id` (PK), `userId` (FK).
 
 - Table `seatsReserved` - Associate seats with reservations.
-- - Colonne: `reservationId` (FK, PK), `row_label` (FK, PK), `seatNumber` (FK, PK), `userId` (FK).
+   - Fields: `reservationId` (FK, PK), `row_label` (FK, PK), `seatNumber` (FK, PK), `userId` (FK).
 
 - Table `seatsReleased` - Stores information about seats that have been released from a reservation (to manage 40s cool-down time).
-- - Colonne: `id` (PK), `userId` (FK), `row_label` (FK), `seatNumber` (FK), `dateDelete`.
+   - Fields: `id` (PK), `userId` (FK), `row_label` (FK), `seatNumber` (FK), `dateDelete`.
 
 ## Main React Components
 
