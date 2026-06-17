@@ -1,35 +1,96 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import './App.css';
+
+import { useState, useEffect } from 'react';
+import { Container } from 'react-bootstrap';
+import { Routes, Route, Navigate, useNavigate } from 'react-router';
+
+import { GenericLayout, NotFoundLayout } from './components/Layout';
+import { LoginWithTotp } from './components/Auth';
+import { Reservations } from './components/Reservations';
+import { TicketLayout } from './components/TicketLayout';
+import { Homepage } from './components/Homepage';
+
+
+import API from './API.js';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const navigate = useNavigate();
+
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const [message, setMessage] = useState('');
+
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await API.getUserInfo();
+        setLoggedIn(true);
+        setUser(user);
+      } catch (err) {
+
+      }
+    };
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+  const handleLogin = async (credentials) => {
+    try {
+      const user = await API.logIn(credentials);
+      setUser(user);
+      setLoggedIn(true);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await API.logOut();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoggedIn(false);
+      setUser(null);
+      setMessage('');
+      navigate('/');
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container fluid>
+      <Routes>
+        <Route path="/" element={
+          <GenericLayout message={message} setMessage={setMessage} loggedIn={loggedIn} user={user} logout={handleLogout} />
+        }>
+          {/* Sub-routes */}
+          <Route index element={<Homepage />} />
+          <Route path="booking" element={
+            loggedIn ? <TicketLayout setMessage={setMessage} user={user} /> : <Navigate replace to='/login' />
+          } />
+          <Route path="reservations" element={
+            loggedIn ? <Reservations setMessage={setMessage} user={user} /> : <Navigate replace to='/login' />
+          } />
+          <Route path="login" element={
+            <LoginWithTotp loggedIn={loggedIn} login={handleLogin} user={user} setUser={setUser} />
+          } />
+
+          <Route path="*" element={<NotFoundLayout />} />
+        </Route>
+      </Routes>
+    </Container>
+  );
 }
 
-export default App
+export default App;

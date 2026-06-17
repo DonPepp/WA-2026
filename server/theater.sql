@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS "users" (
 
 CREATE TABLE IF NOT EXISTS "seats" (
     "row_label" TEXT NOT NULL,
-    "seat_number" INTEGER NOT NULL,
+    "seatNumber" INTEGER NOT NULL,
     "category" TEXT NOT NULL CHECK("category" = 'normal' OR "category" = 'premium'),
-    PRIMARY KEY("row_label", "seat_number")
+    PRIMARY KEY("row_label", "seatNumber")
 );
 
 CREATE TABLE IF NOT EXISTS "reservations" (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS "seatsReserved" (
     "userId" INTEGER NOT NULL,
     PRIMARY KEY("reservationId", "row_label", "seatNumber"),
     FOREIGN KEY("reservationId") REFERENCES "reservations"("id"),
-    FOREIGN KEY("row_label", "seatNumber") REFERENCES "seats"("row_label", "seat_number"),
+    FOREIGN KEY("row_label", "seatNumber") REFERENCES "seats"("row_label", "seatNumber"),
     FOREIGN KEY("userId") REFERENCES "users"("userId")
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "seatsReleased" (
     "dateDelete" TEXT NOT NULL,
     PRIMARY KEY("id" AUTOINCREMENT),
     FOREIGN KEY("userId") REFERENCES "users"("userId"),
-    FOREIGN KEY("row_label", "seatNumber") REFERENCES "seats"("row_label", "seat_number")
+    FOREIGN KEY("row_label", "seatNumber") REFERENCES "seats"("row_label", "seatNumber")
 );
 
 
@@ -56,15 +56,15 @@ INSERT INTO "users" VALUES (3, 'u3@p.it', 'Antonio', '61ed132df8733b14ae5210457d
 INSERT INTO "users" VALUES (4, 'u4@p.it', 'Carmen', '1d22239e62539d26ccdb1d114c0f27d8870f70d622f35de0ae2ad651840ee58a', 'a8b618c717683608', '', 0, 0);
 
 -- Popolamento Posti (Struttura a piramide)
-INSERT INTO "seats" ("row_label", "seat_number", "category") VALUES 
+INSERT INTO "seats" ("row_label", "seatNumber", "category") VALUES 
 ('A', 1, 'premium'), ('A', 2, 'premium'), ('A', 3, 'premium'), ('A', 4, 'premium'), ('A', 5, 'premium'), ('A', 6, 'premium'), ('A', 7, 'premium'), ('A', 8, 'premium'),
 ('B', 1, 'premium'), ('B', 2, 'premium'), ('B', 3, 'premium'), ('B', 4, 'premium'), ('B', 5, 'premium'), ('B', 6, 'premium'), ('B', 7, 'premium'), ('B', 8, 'premium');
 
-INSERT INTO "seats" ("row_label", "seat_number", "category") VALUES 
+INSERT INTO "seats" ("row_label", "seatNumber", "category") VALUES 
 ('C', 1, 'normal'), ('C', 2, 'normal'), ('C', 3, 'normal'), ('C', 4, 'normal'), ('C', 5, 'normal'), ('C', 6, 'normal'), ('C', 7, 'normal'), ('C', 8, 'normal'), ('C', 9, 'normal'), ('C', 10, 'normal'), ('C', 11, 'normal'), ('C', 12, 'normal'),
 ('D', 1, 'normal'), ('D', 2, 'normal'), ('D', 3, 'normal'), ('D', 4, 'normal'), ('D', 5, 'normal'), ('D', 6, 'normal'), ('D', 7, 'normal'), ('D', 8, 'normal'), ('D', 9, 'normal'), ('D', 10, 'normal'), ('D', 11, 'normal'), ('D', 12, 'normal');
 
-INSERT INTO "seats" ("row_label", "seat_number", "category") VALUES 
+INSERT INTO "seats" ("row_label", "seatNumber", "category") VALUES 
 ('E', 1, 'normal'), ('E', 2, 'normal'), ('E', 3, 'normal'), ('E', 4, 'normal'), ('E', 5, 'normal'), ('E', 6, 'normal'), ('E', 7, 'normal'), ('E', 8, 'normal'), ('E', 9, 'normal'), ('E', 10, 'normal'), ('E', 11, 'normal'), ('E', 12, 'normal'), ('E', 13, 'normal'), ('E', 14, 'normal'), ('E', 15, 'normal'), ('E', 16, 'normal'),
 ('F', 1, 'normal'), ('F', 2, 'normal'), ('F', 3, 'normal'), ('F', 4, 'normal'), ('F', 5, 'normal'), ('F', 6, 'normal'), ('F', 7, 'normal'), ('F', 8, 'normal'), ('F', 9, 'normal'), ('F', 10, 'normal'), ('F', 11, 'normal'), ('F', 12, 'normal'), ('F', 13, 'normal'), ('F', 14, 'normal'), ('F', 15, 'normal'), ('F', 16, 'normal'),
 ('G', 1, 'normal'), ('G', 2, 'normal'), ('G', 3, 'normal'), ('G', 4, 'normal'), ('G', 5, 'normal'), ('G', 6, 'normal'), ('G', 7, 'normal'), ('G', 8, 'normal'), ('G', 9, 'normal'), ('G', 10, 'normal'), ('G', 11, 'normal'), ('G', 12, 'normal'), ('G', 13, 'normal'), ('G', 14, 'normal'), ('G', 15, 'normal'), ('G', 16, 'normal'),
