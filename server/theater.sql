@@ -49,13 +49,11 @@ CREATE TABLE IF NOT EXISTS "seatsReleased" (
 
 
 
--- Popolamento Utenti (Password in chiaro per tutti: 'pwd')
 INSERT INTO "users" VALUES (1, 'u1@p.it', 'Giuseppe', '15d3c4fca80fa608dcedeb65ac10eff78d20c88800d016369a3d2963742ea288', '72e4eeb14def3b21', 'LXBSMDTMSP2I5XFXIYRGFVWSFI', 1, 0);
 INSERT INTO "users" VALUES (2, 'u2@p.it', 'DonPepp', '1d22239e62539d26ccdb1d114c0f27d8870f70d622f35de0ae2ad651840ee58a', 'a8b618c717683608', '', 0, 0);
 INSERT INTO "users" VALUES (3, 'u3@p.it', 'Antonio', '61ed132df8733b14ae5210457df8f95b987a7d4b8cdf3daf2b5541679e7a0622', 'e818f0647b4e1fe0', 'LXBSMDTMSP2I5XFXIYRGFVWSFI', 1, 0);
 INSERT INTO "users" VALUES (4, 'u4@p.it', 'Carmen', '1d22239e62539d26ccdb1d114c0f27d8870f70d622f35de0ae2ad651840ee58a', 'a8b618c717683608', '', 0, 0);
 
--- Popolamento Posti (Struttura a piramide)
 INSERT INTO "seats" ("row_label", "seatNumber", "category") VALUES 
 ('A', 1, 'premium'), ('A', 2, 'premium'), ('A', 3, 'premium'), ('A', 4, 'premium'), ('A', 5, 'premium'), ('A', 6, 'premium'), ('A', 7, 'premium'), ('A', 8, 'premium'),
 ('B', 1, 'premium'), ('B', 2, 'premium'), ('B', 3, 'premium'), ('B', 4, 'premium'), ('B', 5, 'premium'), ('B', 6, 'premium'), ('B', 7, 'premium'), ('B', 8, 'premium');
@@ -70,13 +68,11 @@ INSERT INTO "seats" ("row_label", "seatNumber", "category") VALUES
 ('G', 1, 'normal'), ('G', 2, 'normal'), ('G', 3, 'normal'), ('G', 4, 'normal'), ('G', 5, 'normal'), ('G', 6, 'normal'), ('G', 7, 'normal'), ('G', 8, 'normal'), ('G', 9, 'normal'), ('G', 10, 'normal'), ('G', 11, 'normal'), ('G', 12, 'normal'), ('G', 13, 'normal'), ('G', 14, 'normal'), ('G', 15, 'normal'), ('G', 16, 'normal'),
 ('H', 1, 'normal'), ('H', 2, 'normal'), ('H', 3, 'normal'), ('H', 4, 'normal'), ('H', 5, 'normal'), ('H', 6, 'normal'), ('H', 7, 'normal'), ('H', 8, 'normal'), ('H', 9, 'normal'), ('H', 10, 'normal'), ('H', 11, 'normal'), ('H', 12, 'normal'), ('H', 13, 'normal'), ('H', 14, 'normal'), ('H', 15, 'normal'), ('H', 16, 'normal');
 
--- Inizializzazione Prenotazioni fittizie
 INSERT INTO "reservations" ("id", "userId") VALUES (1, 1);
 INSERT INTO "reservations" ("id", "userId") VALUES (2, 1);
 INSERT INTO "reservations" ("id", "userId") VALUES (3, 2);
 INSERT INTO "reservations" ("id", "userId") VALUES (4, 2);
 
--- Assegnazione Posti (Corretto: riga E ha 16 posti, quindi il 15,16,17 ci stanno)
 INSERT INTO "seatsReserved" VALUES (1, 'A', 1,1);
 INSERT INTO "seatsReserved" VALUES (1, 'A', 2,1);
 INSERT INTO "seatsReserved" VALUES (2, 'B', 5,1);

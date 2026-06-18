@@ -219,10 +219,11 @@ app.post('/api/reservations', isLoggedIn,
         taken = seats;
       } else if (type === 'automatic') {
         const free = all.filter(s => s.status === 'free' && s.category === category);
-        const blockStatus = await Promise.all(
-          free.map(s => seatDao.isReleased(user.id, s.row, s.number, timestamp))
-        );
+        const blockStatus = isAdmin
+          ? free.map(() => false)
+          : await Promise.all(free.map(s => seatDao.isReleased(user.id, s.row, s.number, timestamp)));
         const freeNotBlocked = free.filter((s, id) => !blockStatus[id]);
+
 
         if (freeNotBlocked.length < count) {
           return res.status(422).json({ error: 'Not enough free seats' });
