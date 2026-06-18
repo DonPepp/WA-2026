@@ -1,6 +1,6 @@
 import sqlite from 'sqlite3';
 
-const db = new sqlite.Database('prova.db', (err) => {
+const db = new sqlite.Database('theater.db', (err) => {
   if (err) throw err;
 });
 
