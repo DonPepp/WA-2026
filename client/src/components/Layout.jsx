@@ -14,7 +14,7 @@ function NotFoundLayout(props) {
 
 
 function GenericLayout(props) {
-  // Calcoliamo se l'utente è amministratore ed è loggato con TOTP
+  // Calcoliamo se l'utente è amministratore ed è loggato con TOTP 
   const isReadyAdmin = props.loggedIn && props.user?.is_admin && props.user?.isActive;
   const linkLabel = isReadyAdmin ? "All Reservations" : "My Reservations";
 
@@ -64,8 +64,8 @@ function GenericLayout(props) {
       <Row>
         <Col>
           {props.message ?
-            <Alert className='my-1' onClose={() => props.setMessage('')} variant='danger' dismissible>
-              {props.message}
+            <Alert className='my-1' onClose={() => props.setMessage(null)} variant={props.message.type} dismissible>
+              {props.message.text}
             </Alert> : null}
         </Col>
       </Row>

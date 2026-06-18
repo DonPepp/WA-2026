@@ -21,7 +21,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(null);
 
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function App() {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
-        setMessage('');
+        setMessage(null);
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -63,7 +63,7 @@ function App() {
     } finally {
       setLoggedIn(false);
       setUser(null);
-      setMessage('');
+      setMessage(null);
       navigate('/');
     }
   };
@@ -77,10 +77,10 @@ function App() {
           {/* Sub-routes */}
           <Route index element={<Homepage />} />
           <Route path="booking" element={
-            loggedIn ? <TicketLayout setMessage={setMessage} user={user} /> : <Navigate replace to='/login' />
+            loggedIn ? <TicketLayout setMessage={setMessage} user={user} /> : <Navigate replace to='/' />
           } />
           <Route path="reservations" element={
-            loggedIn ? <Reservations setMessage={setMessage} user={user} /> : <Navigate replace to='/login' />
+            loggedIn ? <Reservations setMessage={setMessage} user={user} /> : <Navigate replace to='/' />
           } />
           <Route path="login" element={
             <LoginWithTotp loggedIn={loggedIn} login={handleLogin} user={user} setUser={setUser} />

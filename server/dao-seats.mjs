@@ -24,26 +24,53 @@ const getSeats = () => {
     });
 };
 
-// prende tutte le reservation (per admin), 
-// prende solo quelle associate ad un user
-const getReservations = (user) => {
+// prende tutte le reservation (per admin)
+const getAllReservations = () => {
     return new Promise((resolve, reject) => {
-        let sql = `
+        const sql = `
             SELECT r.id, r.userId AS ownerId, sr.row_label, sr.seatNumber 
             FROM reservations r 
             LEFT JOIN seatsReserved sr ON r.id = sr.reservationId
         `;
-        let params = [];
-        // se non è admin vede solo le sue
-        if (!user || user.is_admin !== 1) {
-            sql += " WHERE r.userId = ?";
-            params.push(user ? user.id : null);
-        }
-        db.all(sql, params, (err, row) => {
+        db.all(sql, [], (err, rows) => {
             if (err) reject(err);
             else {
                 const reservations = {};
-                row.forEach(r => {
+                rows.forEach(r => {
+                    if (!reservations[r.id]) {
+                        reservations[r.id] = {
+                            id: r.id,
+                            userId: r.ownerId,
+                            seats: []
+                        };
+                    }
+                    if (r.row_label && r.seatNumber) {
+                        reservations[r.id].seats.push({
+                            row: r.row_label,
+                            number: r.seatNumber
+                        });
+                    }
+                });
+                resolve(Object.values(reservations));
+            }
+        });
+    });
+};
+
+// prende solo le prenotazioni di un user
+const getReservationsByUserId = (userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT r.id, r.userId AS ownerId, sr.row_label, sr.seatNumber 
+            FROM reservations r 
+            LEFT JOIN seatsReserved sr ON r.id = sr.reservationId
+            WHERE r.userId = ?
+        `;
+        db.all(sql, [userId], (err, rows) => {
+            if (err) reject(err);
+            else {
+                const reservations = {};
+                rows.forEach(r => {
                     if (!reservations[r.id]) {
                         reservations[r.id] = {
                             id: r.id,
@@ -92,48 +119,38 @@ const createReservation = (userId) => {
 };
 
 // aggiunge un posto alla reservation
-const reserveSeat = (reservationId, row_label, seat_number, user) => {
+const reserveSeat = (reservationId, row_label, seat_number, ownerId) => {
     return new Promise((resolve, reject) => {
-        // troviamo prima il proprietario della prenotazione
-        const proprietary = 'SELECT userId FROM reservations WHERE id = ?';
-        db.get(proprietary, [reservationId], (err, row) => {
-            if (err) reject(err);
-            if (!row) return resolve(0); //se non c'è la prenotazione ritorna 0
-
-            const ownerId = row.userId;
-
-            if (user.is_admin !== 1 && user.id !== ownerId) {
-                return resolve(0); // non è admin e non è il proprietario, non può riservare questo posto
-            }
-            const sql = 'INSERT INTO seatsReserved (reservationId, row_label, seatNumber, userId) VALUES (?, ?, ?, ?)';
-            db.run(sql, [reservationId, row_label, seat_number, ownerId], function (err) {
-                if (err) reject(err);
-                else resolve(this.changes);
-            });
-        })
-    });
-};
-
-// rimuove un posto dalla reservation
-const removeSeatFromReservation = (reservationId, row_label, seat_number, user) => {
-    return new Promise((resolve, reject) => {
-        let sql;
-        let params;
-
-        if (user.is_admin === 1) {
-            sql = 'DELETE FROM seatsReserved WHERE reservationId = ? AND row_label = ? AND seatNumber = ?';
-            params = [reservationId, row_label, seat_number];
-        } else {
-            sql = 'DELETE FROM seatsReserved WHERE reservationId = ? AND row_label = ? AND seatNumber = ? AND userId = ?';
-            params = [reservationId, row_label, seat_number, user.id];
-        }
-
-        db.run(sql, params, function (err) {
+        const sql = 'INSERT INTO seatsReserved (reservationId, row_label, seatNumber, userId) VALUES (?, ?, ?, ?)';
+        db.run(sql, [reservationId, row_label, seat_number, ownerId], function (err) {
             if (err) reject(err);
             else resolve(this.changes);
         });
     });
 };
+
+// per trovare il proprietario effettivo di una prenotazione
+const getReservationOwner = (reservationId) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT userId FROM reservations WHERE id = ?';
+        db.get(sql, [reservationId], (err, row) => {
+            if (err) reject(err);
+            else resolve(row ? row.userId : null);
+        });
+    });
+};
+
+// rimuove un posto dalla reservation
+const removeSeatFromReservation = (reservationId, row_label, seat_number) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'DELETE FROM seatsReserved WHERE reservationId = ? AND row_label = ? AND seatNumber = ?';
+        db.run(sql, [reservationId, row_label, seat_number], function (err) {
+            if (err) reject(err);
+            else resolve(this.changes);
+        });
+    });
+};
+
 
 // aggiunge nello storico un posto appena rilasciato
 // usato per la regola dei 40 secondi 
@@ -149,19 +166,10 @@ const addReleasedSeat = (userId, row_label, seat_number, timestamp) => {
 };
 
 
-const deleteReservation = (reservationId, user) => {
+const deleteReservation = (reservationId) => {
     return new Promise((resolve, reject) => {
-        let sql;
-        let params;
-
-        if (user.is_admin === 1) {
-            sql = 'DELETE FROM reservations WHERE id = ? ';
-            params = [reservationId];
-        } else {
-            sql = 'DELETE FROM reservations WHERE id = ? AND userId = ? ';
-            params = [reservationId, user.id];
-        }
-        db.run(sql, params, function (err) {
+        const sql = 'DELETE FROM reservations WHERE id = ?';
+        db.run(sql, [reservationId], function (err) {
             if (err) reject(err);
             else resolve(this.changes);
         });
@@ -169,4 +177,5 @@ const deleteReservation = (reservationId, user) => {
 };
 
 
-export default { getSeats, getReservations, isReleased, createReservation, reserveSeat, removeSeatFromReservation, addReleasedSeat, deleteReservation };
+
+export default { getSeats, getAllReservations, getReservationsByUserId, isReleased, createReservation, reserveSeat, removeSeatFromReservation, addReleasedSeat, deleteReservation, getReservationOwner };

@@ -5,7 +5,6 @@ function TheaterMap(props) {
 
     const rows = [...new Set(seats.map(s => s.row))].sort();
 
-    // Calcolo delle statistiche del teatro
     const totalSeats = seats.length;
     const reservedSeats = seats.filter(s => s.status === 'reserved').length;
     const freeNormal = seats.filter(s => s.status === 'free' && s.category === 'normal').length;

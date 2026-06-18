@@ -44,7 +44,7 @@ function Reservations(props) {
         setError('');
         API.deleteReservation(id)
             .then(() => {
-                props.setMessage("Reservation deleted! (Remember: you cannot re-book these seats for 40 seconds)");
+                props.setMessage({ text: "Reservation deleted! (Remember: you cannot re-book these seats for 40 seconds)", type: "success" });
                 loadReservations();
             })
             .catch(err => setError(err.error || "Impossible to delete"));
@@ -90,7 +90,7 @@ function Reservations(props) {
 
         API.editReservation(selectedRes.id, add, rem)
             .then(() => {
-                props.setMessage("Reservation modified!");
+                props.setMessage({ text: "Reservation modified!", type: "success" });
                 setShowModal(false);
                 loadReservations();
             })

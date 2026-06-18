@@ -180,7 +180,12 @@ app.get('/api/seats', async (req, res) => {
 app.get('/api/reservations', isLoggedIn, async (req, res) => {
   try {
     const user = getEffectiveUser(req);
-    const reservations = await seatDao.getReservations(user);
+    let reservations;
+    if (user.is_admin === 1) {
+      reservations = await seatDao.getAllReservations();
+    } else {
+      reservations = await seatDao.getReservationsByUserId(user.id);
+    }
     res.json(reservations);
   } catch (err) {
     console.error(err);
@@ -270,7 +275,7 @@ app.post('/api/reservations', isLoggedIn,
       const reservationId = await seatDao.createReservation(user.id);
 
       for (const seat of taken) {
-        await seatDao.reserveSeat(reservationId, seat.row, seat.number, user);
+        await seatDao.reserveSeat(reservationId, seat.row, seat.number, user.id);
       }
 
       return res.status(200).json({ message: "Reservation done", reservationId, seats: taken });
@@ -296,19 +301,24 @@ app.delete('/api/reservations/:id', isLoggedIn,
       const reservationId = parseInt(req.params.id);
       const user = getEffectiveUser(req);
       const now = dayjs().toISOString();
-      const allReservations = await seatDao.getReservations(user);
-      const reservation = allReservations.find(r => r.id === reservationId);
 
-      // release seats and add in ReleasedSeats for the 40 seconds rule
-      if (!reservation)
+      const ownerId = await seatDao.getReservationOwner(reservationId);
+      if (!ownerId)
         return res.status(404).json({ error: 'Reservation not found' });
 
+      if (user.is_admin !== 1 && user.id !== ownerId)
+        return res.status(403).json({ error: 'You cannot delete this reservation' });
+
+      const allReservations = await seatDao.getReservationsByUserId(ownerId);
+      const reservation = allReservations.find(r => r.id === reservationId);
+
+
       for (const seat of reservation.seats) {
-        await seatDao.removeSeatFromReservation(reservationId, seat.row, seat.number, user);
+        await seatDao.removeSeatFromReservation(reservationId, seat.row, seat.number);
         await seatDao.addReleasedSeat(reservation.userId, seat.row, seat.number, now);
       }
-      const changes = await seatDao.deleteReservation(reservationId, user);
-      if (changes === 0) return res.status(403).json({ error: 'You cannot delete this reservation' });
+
+      await seatDao.deleteReservation(reservationId);
       return res.status(200).json({ message: 'Reservation cancelled' });
     }
     catch (err) {
@@ -336,18 +346,23 @@ app.put('/api/reservations/:id', isLoggedIn,
       const now = dayjs().toISOString();
       const timestamp = dayjs().subtract(40, 'seconds').toISOString();
       const isAdmin = req.user.is_admin === 1 && req.session.method === 'totp';
-      const allReservations = await seatDao.getReservations(user);
+
+      const ownerId = await seatDao.getReservationOwner(reservationId);
+      if (!ownerId)
+        return res.status(404).json({ error: 'Reservation not found' });
+
+      if (user.is_admin !== 1 && user.id !== ownerId)
+        return res.status(403).json({ error: 'You cannot modify this reservation' });
+
+      const allReservations = await seatDao.getReservationsByUserId(ownerId);
       const reservation = allReservations.find(r => r.id === reservationId);
 
-      // release seats and add in ReleasedSeats for the 40 seconds rule
-      if (!reservation)
-        return res.status(404).json({ error: 'Reservation not found' });
 
       const all = await seatDao.getSeats();
 
       if (rem && rem.length > 0) {
         for (const seat of rem) {
-          await seatDao.removeSeatFromReservation(reservationId, seat.row, seat.number, user);
+          await seatDao.removeSeatFromReservation(reservationId, seat.row, seat.number);
           await seatDao.addReleasedSeat(reservation.userId, seat.row, seat.number, now);
         }
       }
@@ -358,10 +373,10 @@ app.put('/api/reservations/:id', isLoggedIn,
           if (!seatState || seatState.status !== 'free') {
             return res.status(422).json({ error: `Seat ${seat.row}-${seat.number} is not free` });
           }
-          const isBlocked = !isAdmin && await seatDao.isReleased(reservation.userId, seat.row, seat.number, timestamp);
+          const isBlocked = !isAdmin && await seatDao.isReleased(ownerId, seat.row, seat.number, timestamp);
           if (isBlocked)
             return res.status(422).json({ error: `You have released seat ${seat.row}-${seat.number} less than 40 seconds ago. Please wait.` });
-          await seatDao.reserveSeat(reservationId, seat.row, seat.number, user);
+          await seatDao.reserveSeat(reservationId, seat.row, seat.number, ownerId);
         }
       }
       res.status(200).json({ message: 'Reservation updated' })

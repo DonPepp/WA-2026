@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "seatsReserved" (
     "row_label" TEXT NOT NULL, 
     "seatNumber" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
-    PRIMARY KEY("reservationId", "row_label", "seatNumber"),
+    PRIMARY KEY("row_label", "seatNumber"),
     FOREIGN KEY("reservationId") REFERENCES "reservations"("id"),
     FOREIGN KEY("row_label", "seatNumber") REFERENCES "seats"("row_label", "seatNumber"),
     FOREIGN KEY("userId") REFERENCES "users"("userId")

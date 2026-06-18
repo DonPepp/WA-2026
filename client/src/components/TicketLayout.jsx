@@ -49,7 +49,7 @@ function TicketLayout(props) {
 
         API.createReservation(type, selectedSeats, autoCount, autoCategory)
             .then(() => {
-                props.setMessage("Reservation created successfully!")
+                props.setMessage({ text: "Reservation created successfully!", type: "success" })
                 navigate('/reservations')
             })
             .catch((err) => setErrorMessage(err.error))
@@ -70,7 +70,7 @@ function TicketLayout(props) {
 
                     <Tab eventKey="automatic" title="Automatic Assignment">
                         <Card className="p-4 shadow-sm mx-auto" style={{ maxWidth: '500px' }}>
-                            <Form>
+                            <Form onSubmit={(e) => e.preventDefault()}>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Number of Seats</Form.Label>
                                     <Form.Control type="number" min="1" value={autoCount} onChange={(e) => setAutoCount(parseInt(e.target.value))} />

@@ -135,7 +135,7 @@
    - Fields: `id` (PK), `userId` (FK).
 
 - Table `seatsReserved` - Associate seats with reservations.
-   - Fields: `reservationId` (FK, PK), `row_label` (FK, PK), `seatNumber` (FK, PK), `userId` (FK).
+   - Fields: `row_label` (FK, PK), `seatNumber` (FK, PK),`reservationId` (FK), `userId` (FK).
 
 - Table `seatsReleased` - Stores information about seats that have been released from a reservation (to manage 40s cool-down time).
    - Fields: `id` (PK), `userId` (FK), `row_label` (FK), `seatNumber` (FK), `dateDelete`.
